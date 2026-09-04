@@ -1,0 +1,3 @@
+"""RE-ZERO build/version metadata."""
+VERSION = "V5.2"
+BUILD_STATUS = "IMPORT FIXED • DYNAMIC MTF • LIQUIDITY • RISK GUARDS"
