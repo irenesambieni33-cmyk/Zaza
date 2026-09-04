@@ -43,7 +43,7 @@ def main():
     if "trade_manager" not in st.session_state: st.session_state.trade_manager=TradeManager()
     if not st.session_state.get("analysis_started",False):
         st.info("Configure le marché et le timeframe, puis démarre l’analyse.")
-        if st.button("🚀 DÉBUTER L’ANALYSE",type="primary",use_container_width=True): st.session_state.analysis_started=True; st.rerun()
+        if st.button("🚀 DÉBUTER L’ANALYSE",type="primary",width="stretch"): st.session_state.analysis_started=True; st.rerun()
         return
     try:
         with st.spinner(f"Analyse {execution_tf} + contexte multi-timeframe en cours…"): frames,warnings,used_proxy=load_market(instrument)

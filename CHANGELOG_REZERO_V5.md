@@ -23,3 +23,10 @@
 - H4 -> setup H4, trigger H1.
 - D1 -> setup D1, trigger H4.
 - No SHO-pred content is included in the release archive.
+
+## V5.2.1 — Streamlit warnings cleanup
+
+- Replaced deprecated `st.components.v1.html` notification bridge with `st.html(..., unsafe_allow_javascript=True)`; Streamlit deprecated the former in 1.56.0 and recommends `st.html`.
+- Replaced deprecated `use_container_width=True` calls with `width="stretch"`.
+- Raised the Streamlit minimum version to 1.57 to align the deployed runtime with the modern API used by the notification bridge.
+- Preserved browser notification behavior and Telegram support.

@@ -43,7 +43,7 @@ def render_chart(tf_result:Dict, liquidity=None):
     for z in (tf_result.get("zones") or {}).get("resistances",[])[:3]: fig.add_hline(y=z["price"],line_dash="dot",annotation_text=f"Résistance {_fmt(z['price'])}")
     for p in (liquidity or {}).get("pools",[])[:6]: fig.add_hline(y=p["price"],line_dash="dash",annotation_text=f"💧 {_fmt(p['price'])}")
     fig.update_layout(height=650,xaxis_rangeslider_visible=False,hovermode="x unified",margin=dict(l=20,r=20,t=30,b=20))
-    st.plotly_chart(fig,use_container_width=True,config={"responsive":True,"displaylogo":False,"scrollZoom":True})
+    st.plotly_chart(fig,width="stretch",config={"responsive":True,"displaylogo":False,"scrollZoom":True})
 
 def render_dashboard(instrument,price,result,capital,crypto_snapshot=None,monitor=False,custom_window=None,trade_manager=None,macro_events=None,execution_tf="M15"):
     trade_manager=trade_manager or TradeManager(); policy=result.get("policy",{}) or {}; setup_tf=execution_tf
@@ -84,7 +84,7 @@ def render_dashboard(instrument,price,result,capital,crypto_snapshot=None,monito
     st.subheader("💧 LIQUIDITÉ")
     if liquidity.get("ok"):
         a,b,c=st.columns(3); a.metric("Pools",len(liquidity.get("pools",[]))); a2=liquidity.get("nearest") or {}; b.metric("Plus proche",_fmt(a2.get("price"))); c.metric("Événements sweep",len(liquidity.get("events",[])))
-        if liquidity.get("pools"): st.dataframe({"Type":[p["type"] for p in liquidity["pools"][:8]],"Prix":[_fmt(p["price"]) for p in liquidity["pools"][:8]],"Touches":[p["touches"] for p in liquidity["pools"][:8]],"Force":[f'{p["strength"]:.0f}/100' for p in liquidity["pools"][:8]]},use_container_width=True,hide_index=True)
+        if liquidity.get("pools"): st.dataframe({"Type":[p["type"] for p in liquidity["pools"][:8]],"Prix":[_fmt(p["price"]) for p in liquidity["pools"][:8]],"Touches":[p["touches"] for p in liquidity["pools"][:8]],"Force":[f'{p["strength"]:.0f}/100' for p in liquidity["pools"][:8]]},width="stretch",hide_index=True)
         for e in liquidity.get("events",[]): st.caption(f'⚡ SWEEP {e["side"]} à {_fmt(e["price"])} • reclaim={e["reclaim"]} • displacement={e["displacement"]}')
         st.caption(liquidity.get("note",""))
     else: st.info("Carte de liquidité indisponible.")
@@ -118,7 +118,7 @@ def render_dashboard(instrument,price,result,capital,crypto_snapshot=None,monito
 
     if trade_manager.active is None and setup and quality.get("approved") and gate.get("approved") and alert.get("active"):
         rs=risk_summary(capital,setup["entry"],setup["sl"]); st.subheader("🔒 SUIVI PAPER"); st.caption("Aucun ordre broker réel n'est envoyé.")
-        if st.button("🔒 J'AI PLACÉ CE TRADE — DÉMARRER LE SUIVI",type="primary",use_container_width=True):
+        if st.button("🔒 J'AI PLACÉ CE TRADE — DÉMARRER LE SUIVI",type="primary",width="stretch"):
             opened=trade_manager.open(instrument,setup,rs["units"],quality,liquidity_note=(liquidity.get("nearest") or {}).get("type",""))
             if opened.get("ok"): st.toast("Trade PAPER pris.",icon="🔒"); st.rerun()
             else: st.error(opened.get("reason","Impossible d'ouvrir la position."))
@@ -133,7 +133,7 @@ def render_dashboard(instrument,price,result,capital,crypto_snapshot=None,monito
     for step in build_step_up(setup).get("steps",[]): st.write(f'**{step["name"]}** • {step["trigger_text"]} {_fmt(step["trigger"])} • {step["action"]}')
     st.subheader("📊 PERFORMANCE PAPER"); perf=trade_manager.snapshot().get("performance",{}); a,b,c,d=st.columns(4); a.metric("Trades clôturés",perf.get("trades",0)); b.metric("Win rate",f'{perf.get("win_rate",0):.1f}%'); c.metric("Net P&L",f'{perf.get("net_pnl",0):+.2f}'); d.metric("Profit factor", "∞" if perf.get("profit_factor")==float("inf") else f'{perf.get("profit_factor",0):.2f}')
     st.subheader("🧩 STRUCTURE"); sd=er.get("structure_data",{}) or {}; a,b,c,d=st.columns(4); a.metric("HH",sd.get("hh",0)); b.metric("HL",sd.get("hl",0)); c.metric("LH",sd.get("lh",0)); d.metric("LL",sd.get("ll",0)); st.write("BOS:",", ".join(sd.get("bos",[])) or "Aucun récent"); st.write("CHoCH:",", ".join(sd.get("choch",[])) or "Aucun récent")
-    st.subheader("📐 FIBONACCI"); fib=er.get("fib",{}); st.dataframe({"Niveau":list(fib.get("levels",{}).keys()),"Prix":[_fmt(v) for v in fib.get("levels",{}).values()]},use_container_width=True,hide_index=True) if fib.get("levels") else st.info("Pas assez de swings.")
+    st.subheader("📐 FIBONACCI"); fib=er.get("fib",{}); st.dataframe({"Niveau":list(fib.get("levels",{}).keys()),"Prix":[_fmt(v) for v in fib.get("levels",{}).values()]},width="stretch",hide_index=True) if fib.get("levels") else st.info("Pas assez de swings.")
     st.subheader("🧪 RÉGIME & DONNÉES"); a,b,c=st.columns(3); a.metric("Régime",rg.get("base","INCONNU")); b.metric("Volatilité",rg.get("volatility","—")); c.metric("Qualité données",f'{dq.get("score",0):.0f}/100')
     st.caption(rg.get("note",""));
     if dq.get("issues"): st.caption("Audit: "+" • ".join(dq["issues"][:5]))
